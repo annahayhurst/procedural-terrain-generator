@@ -1,0 +1,72 @@
+*********************************************************
+|							|
+|	     OPENGL PROCEDURAL GENERATOR v1.0		|
+|							|
+*********************************************************
+
+Anna Hayhurst, May 2019
+
+
+***********************
+*	 NOTE	      *
+***********************
+
+The files MainPCG.exe and SceneDemo.exe can be run from anywhere on the file system as all dependencies are built in.
+
+EngineLib.lib is also standalone. It is your responsibility to set up a C++ project that can import and utilise the library.
+
+If building manually, running tests, etc., leave the directory structure of OpenGL_PCG intact. Access is required to the files provided in
+\EngineLib and \Resources.
+
+************************
+* How to Run Generator *
+************************
+
+On Windows:
+	- Run Main_PCG\Main_PCG.exe
+	- To build manually: Open OpenGL_PCG.sln in Visual Studio 2017 and build Main_PCG
+
+Requires: A Windows system supporting 32-bit OpenGL. If building manually, VS17.
+
+-------------------------
+
+Linux and MacOS are unfortunately not supported as I did not have time to convert all dependencies.
+
+-------------------------
+
+Known issues:
+	- Occasionally, upon loading the generated scene, using mouse controls will cause the window to turn black.
+	  If this occurs, restart the application.
+
+*************************
+* How to Run Scene Demo *
+*************************
+
+- Run SceneDemo\SceneDemo.exe
+- To build manually: Open OpenGL_PCG.sln in Visual Studio 2017 and build SceneDemo
+
+Requires: A Windows system supporting 32-bit OpenGL. If building manually, VS17.
+
+***************************
+* How to Reuse The Engine *
+***************************
+
+The engine has been compiled into a static library. In VS17, you can add EngineLib\lib\EngineLib.lib as a dependency for your project, and
+add the directory EngineLib as an include source (in order to find the header files). For other IDEs it should be a similar process.
+
+After this, you can include the engine header files as you would any other class. (e.g. #include "Mesh.h"). All classes use the namespace 'Engine'.
+
+If using Scene, you must provide the path to your copy of \EngineLib in its constructor. This allows the class to make
+use of shared resources provided in the engine. Do not add a trailing slash. (The path can be relative or absolute, as per your preference.)
+
+Requires: Knowledge of C++, a C++ IDE.
+
+*************************
+* How to Run Test Cases *
+*************************
+
+- Tests are built in the Visual C++ Framework and must be run through VS17.
+- Open OpenGL_PCG and navigate to UnitTests_PCG
+- Run all test cases (shortcut CTRL + R, A)
+
+Requires: A system with VS17.

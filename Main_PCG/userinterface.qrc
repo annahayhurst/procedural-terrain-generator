@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="/UserInterface"/>
+  <qresource prefix="/banners">
+    <file>gui/banner_form.png</file>
+    <file>gui/banner_help.png</file>
+  </qresource>
+</RCC>

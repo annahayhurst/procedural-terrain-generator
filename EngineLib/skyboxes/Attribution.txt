@@ -1,0 +1,6 @@
+TEXTURES RETRIEVED FROM:
+- https://textures.com
+
+SKYBOXES RETRIEVED FROM:
+- http://www.custommapmakers.org/skyboxes.php
+- Each skybox folder contains a readme file with further attribution and licensing information for that set of images.
