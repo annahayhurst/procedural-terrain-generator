@@ -6,14 +6,14 @@ namespace Engine {
 	}
 
 	// Constructor with params
-	Material::Material(GLfloat sInt, GLuint shininess) :
-		specularIntensity(sInt), shininess(shininess) {
+	Material::Material(GLfloat specularIntensity, GLuint shininess) :
+		specularIntensity(specularIntensity), shininess(shininess) {
 	}
 
 	// Set uniform values in the shaders this material is linked to
-	void Material::useMaterial(Shader* s) {
-		glUniform1f(s->getSpecIntensityUL(), specularIntensity);
-		glUniform1i(s->getShininessUL(), shininess);
+	void Material::useMaterial(Shader* shader) {
+		glUniform1f(shader->getSpecularIntensityUL(), specularIntensity);
+		glUniform1i(shader->getShininessUL(), shininess);
 
 	}
 

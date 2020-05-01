@@ -32,13 +32,19 @@ namespace Engine {
 		GLfloat getMovementSpeed() { return moveSpeed; };
 		GLfloat getTurnSpeed() { return turnSpeed; };
 
-		void setMovementSpeed(GLfloat mSpeed) { moveSpeed = mSpeed; };
-		void setTurnSpeed(GLfloat tSpeed) { turnSpeed = tSpeed; };
-		void setPosition(vec3 pos) { position = pos; };
-		void setYaw(GLfloat y) { yaw = y; calculateDirection(); };
-		void setPitch(GLfloat p) { pitch = p; calculateDirection(); };
+		void setMovementSpeed(GLfloat moveSpeed) { this->moveSpeed = moveSpeed; };
+		void setTurnSpeed(GLfloat turnSpeed) { this->turnSpeed = turnSpeed; };
+		void setPosition(vec3 position) { this->position = position; };
+		void setYaw(GLfloat yaw) { 
+			this->yaw = yaw; 
+			calculateDirection(); 
+		};
+		void setPitch(GLfloat pitch) { 
+			this->pitch = pitch;
+			calculateDirection();
+		};
 
-		void updateUniformPosition(Shader* s);
+		void updateUniformPosition(Shader* shader);
 
 		void keyControl(bool* keys, GLfloat dT);
 		void mouseControl(GLdouble dX, GLdouble dY);

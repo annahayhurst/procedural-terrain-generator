@@ -15,7 +15,7 @@ namespace Engine {
 		// The colour of light corresponding to this map
 		vec3 lightColour;
 		// The direction of the light, determining the angle at which it will hit the terrain.
-		vec3 lightDir;
+		vec3 lightDirection;
 
 		// The boundaries at which we transition from one terrain type to the next
 		// bounds.x = peak bound, bounds.y = high bound, bounds.z = low bound

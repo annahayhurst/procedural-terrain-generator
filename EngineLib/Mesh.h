@@ -20,7 +20,7 @@ namespace Engine {
 	public:
 		Mesh(MeshType type);
 
-		void createMesh(GLfloat* vertices, GLuint* indices, GLuint vertArrayLength, GLuint indArrayLength);
+		void createMesh(GLfloat* vertices, GLuint* indices, GLuint vertexArrayLength, GLuint indexArrayLength);
 		void drawMesh();
 
 		GLuint getVAO() { return VAO; };
@@ -44,8 +44,8 @@ namespace Engine {
 		// Offset refers to how many values must be traversed to reach the first normal value (nx).
 		int STRIDE, OFFSET;
 
-		void setNormals(GLfloat* vData, GLuint* iData);
-		vec3 calculateNormal(GLfloat* vData, GLuint a, GLuint b, GLuint c);
+		void setNormals(GLfloat* vertexData, GLuint* indexData);
+		vec3 calculateNormal(GLfloat* vData, GLuint vertexPositionA, GLuint vertexPositionB, GLuint vertexPositionC);
 		void setAttributePointers();
 		void clearMesh();
 

@@ -19,15 +19,15 @@ namespace Engine {
 	class Light {
 	public:
 		Light();
-		Light(vec3 col, GLfloat aInt);
+		Light(vec3 colour, GLfloat ambientIntensity);
 
-		virtual void useLight(Shader* s); // this is overridden by other type(s) of light
+		virtual void useLight(Shader* shader); // this is overridden by other type(s) of light
 
 		vec3 getColour() { return colour; };
 		GLfloat getAmbientIntensity() { return ambientIntensity; };
 
-		void setColour(vec3 col) { colour = col; };
-		void setAmbientIntensity(GLfloat aIntensity) { ambientIntensity = aIntensity; };
+		void setColour(vec3 colour) { this->colour = colour; };
+		void setAmbientIntensity(GLfloat ambientIntensity) { this->ambientIntensity = ambientIntensity; };
 
 		~Light() {};
 
