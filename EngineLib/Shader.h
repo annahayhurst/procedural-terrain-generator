@@ -25,7 +25,7 @@ namespace Engine {
 	public:
 		Shader();
 
-		bool createShaders(const char* vPath, const char* fPath);
+		bool createShaders(const char* vertexShaderPath, const char* fragmentShaderPath);
 
 		void useShaders();
 		static void clearShaders();
@@ -35,12 +35,12 @@ namespace Engine {
 		GLuint getProjectionUL() { return uProjection; };
 		GLuint getModelUL() { return uModel; };
 		GLuint getViewUL() { return uView; };
-		GLuint getAmbColourUL() { return uAmbientColour; };
-		GLuint getAmbIntensityUL() { return uAmbientIntensity; };
+		GLuint getAmbientColourUL() { return uAmbientColour; };
+		GLuint getAmbientIntensityUL() { return uAmbientIntensity; };
 		GLuint getDirectionUL() { return uDirection; };
-		GLuint getDiffIntensityUL() { return uDiffuseIntensity; };
+		GLuint getDiffuseIntensityUL() { return uDiffuseIntensity; };
 		GLuint getShininessUL() { return uShininess; };
-		GLuint getSpecIntensityUL() { return uSpecularIntensity; };
+		GLuint getSpecularIntensityUL() { return uSpecularIntensity; };
 		GLuint getCameraPositionUL() { return uCameraPosition; }
 
 		GLuint getID() { return id; };
@@ -59,7 +59,7 @@ namespace Engine {
 
 		string readSourceCode(const char* filePath);
 
-		bool compileShaders(const char* vCode, const char* fCode);
+		bool compileShaders(const char* vertexShaderCode, const char* fragmentShaderCode);
 		void attachShader(GLuint program, const char* code, GLenum type);
 		void assignUniforms();
 		void deleteShaders();

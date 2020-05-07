@@ -44,10 +44,10 @@ namespace Engine {
 		int A = permutations[X] + Y, AA = permutations[A], AB = permutations[A + 1],
 			B = permutations[X + 1] + Y, BA = permutations[B], BB = permutations[B + 1];
 
-		float i1 = lint(u, gradient(permutations[AA], x, y), gradient(permutations[BA], x - 1, y));
-		float i2 = lint(u, gradient(permutations[AB], x, y - 1), gradient(permutations[BB], x - 1, y - 1));
+		float lintResult1 = lint(u, gradient(permutations[AA], x, y), gradient(permutations[BA], x - 1, y));
+		float lintResult2 = lint(u, gradient(permutations[AB], x, y - 1), gradient(permutations[BB], x - 1, y - 1));
 
-		return lint(v, i1, i2);
+		return lint(v, lintResult1, lintResult2);
 	}
 
 	// Generates a single noise value for a given coordinate by creating a unit cube around the point,
@@ -77,14 +77,14 @@ namespace Engine {
 
 		// Linear interpolate as appropriate to create the final value based on the faded values
 		// and the calculated hashed cube corners. Simplified from the original implementation for readability
-		float i1, i2, j1, j2;
+		float innerLint1, innerLint2, outerLint1, outerLint2;
 		// All hash values and hash values + 1 represented. Combinations of x, y, z, and x-1, y-1, z-1.
-		i1 = lint(u, gradient(permutations[AB + 1], x, y - 1, z - 1), gradient(permutations[BB + 1], x - 1, y - 1, z - 1)); // Innermost interpolation
-		j1 = lint(v, lint(u, gradient(permutations[AA + 1], x, y, z - 1), gradient(permutations[BA + 1], x - 1, y, z - 1)), i1);
-		i2 = lint(u, gradient(permutations[AB], x, y - 1, z), gradient(permutations[BB], x - 1, y - 1, z));
-		j2 = lint(v, lint(u, gradient(permutations[AA], x, y, z), gradient(permutations[BA], x - 1, y, z)), i2);
+		innerLint1 = lint(u, gradient(permutations[AB + 1], x, y - 1, z - 1), gradient(permutations[BB + 1], x - 1, y - 1, z - 1)); // Innermost interpolation
+		outerLint1 = lint(v, lint(u, gradient(permutations[AA + 1], x, y, z - 1), gradient(permutations[BA + 1], x - 1, y, z - 1)), innerLint1);
+		innerLint2 = lint(u, gradient(permutations[AB], x, y - 1, z), gradient(permutations[BB], x - 1, y - 1, z));
+		outerLint2 = lint(v, lint(u, gradient(permutations[AA], x, y, z), gradient(permutations[BA], x - 1, y, z)), innerLint2);
 
-		return lint(w, j2, j1); // Outermost interpolation, giving the final value
+		return lint(w, outerLint2, outerLint1); // Outermost interpolation, giving the final value
 
 	}
 
@@ -96,20 +96,20 @@ namespace Engine {
 	float Perlin::octaveNoise2D(float x, float y) {
 		float total = 0.0f;
 		float max = 0.0f; // this puts a cap on the final value, so it normalises btwn 0 and 1
-		float frq = 1.0f, amp = 1.0f; // these decrease each iteration
+		float frequency = 1.0f, amplitude = 1.0f; // these decrease each iteration
 
 		for (uint i = 0; i < octaves; ++i) {
-			total += noise2D(frq*x, frq*y) * amp;
+			total += noise2D(frequency*x, frequency*y) * amplitude;
 
 			// If we add each amplitude value, we can divide through to normalise.
-			max += amp;
+			max += amplitude;
 
 			// As octave gets higher, increase frequency according to 2^i (higher frequency = more jagged noise)
-			frq *= 2;
+			frequency *= 2;
 
 			// As octave gets higher, decrease amplitude according to persistence^i (lower amplitude = affects final noise less)
 			// The higher the persistence, the more each octave's noise will affect the overall noise.
-			amp *= persistence;
+			amplitude *= persistence;
 		}
 
 		return total / max;
@@ -119,20 +119,20 @@ namespace Engine {
 	float Perlin::octaveNoise3D(float x, float y, float z) {
 		float total = 0.0f;
 		float max = 0.0f; // this puts a cap on the final value, so it normalises btwn 0 and 1
-		float frq = 1.0f, amp = 1.0f; // these decrease each iteration
+		float frequency = 1.0f, amplitude = 1.0f; // these decrease each iteration
 
 		for (uint i = 0; i < octaves; ++i) {
-			total += noise3D(frq*x, frq*y, frq*z) * amp;
+			total += noise3D(frequency*x, frequency*y, frequency*z) * amplitude;
 
 			// If we add each amplitude value, we can divide through to normalise.
-			max += amp;
+			max += amplitude;
 
 			// As octave gets higher, increase frequency according to 2^i (higher frequency = more jagged noise)
-			frq *= 2;
+			frequency *= 2;
 
 			// As octave gets higher, decrease amplitude according to persistence^i (lower amplitude = affects final noise less)
 			// The higher the persistence, the more each octave's noise will affect the overall noise.
-			amp *= persistence;
+			amplitude *= persistence;
 		}
 
 		return total / max;
@@ -197,10 +197,10 @@ namespace Engine {
 	}
 
 	// Helper function to find the floor without fiddling with type casting (due to cmath floor returning a float)
-	int Perlin::floor(float a) {
-		int aInt = (int)a;
+	int Perlin::floor(float number) {
+		int numberAsInt = (int)number;
 
-		return (a >= aInt) ? (aInt) : (aInt - 1);
+		return (number >= numberAsInt) ? (numberAsInt) : (numberAsInt - 1);
 	}
 
 	// Shuffle the permutations vector using a random engine. A new permutations vector means new noise values

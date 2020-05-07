@@ -12,8 +12,8 @@ namespace Engine {
 	// Using helper function to read shader from file, convert the output to a C-style
 	// string and then pass to the method compiling the shader.
 	// Exists as a public call to the compilation method.
-	bool Shader::createShaders(const char* vPath, const char* fPath) {
-		return compileShaders(readSourceCode(vPath).c_str(), readSourceCode(fPath).c_str());
+	bool Shader::createShaders(const char* vertexShaderPath, const char* fragmentShaderPath) {
+		return compileShaders(readSourceCode(vertexShaderPath).c_str(), readSourceCode(fragmentShaderPath).c_str());
 	}
 
 	// Simply makes public call to OpenGL to use the shader after we have already compiled/linked it
@@ -63,7 +63,7 @@ namespace Engine {
 		return content;
 	}
 
-	bool Shader::compileShaders(const char* vCode, const char* fCode) {
+	bool Shader::compileShaders(const char* vertexShaderCode, const char* fragmentShaderCode) {
 		id = glCreateProgram(); // assigns empty program to ID with non-zero value you can reference
 
 		if (!id || id == 0) { // check program was created
@@ -72,8 +72,8 @@ namespace Engine {
 		}
 
 		// Pair the code with its appropriate shader type
-		attachShader(id, vCode, GL_VERTEX_SHADER);
-		attachShader(id, fCode, GL_FRAGMENT_SHADER);
+		attachShader(id, vertexShaderCode, GL_VERTEX_SHADER);
+		attachShader(id, fragmentShaderCode, GL_FRAGMENT_SHADER);
 
 		// Variables for debugging + error reporting
 		GLint result = 0;
@@ -119,7 +119,7 @@ namespace Engine {
 		// Measure the length of the code.
 		GLint codeLength[1]{ (GLint)strlen(code) };
 
-		// Signify to the new shader where it can find its data, and how long this data is.
+		// Signify to the new shader where it can find its data, and how long this data is (one array entry).
 		glShaderSource(newShader, 1, codeSource, codeLength);
 		// Compile the shader using the data set as the source.
 		glCompileShader(newShader);
@@ -141,7 +141,7 @@ namespace Engine {
 
 	}
 
-	// Locate uniforms (by name within the code of the shader with this ID.
+	// Locate uniforms by name within the code of the shader with this ID.
 	void Shader::assignUniforms() {
 		// Matrices
 		uProjection = glGetUniformLocation(id, "projection");

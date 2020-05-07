@@ -3,25 +3,25 @@
 namespace Engine {
 	// Default constructor setting class variables to values suitable for a lower end computer for safety
 	PerlinGrid::PerlinGrid() :
-		size(1000), hScale(5.0f), vScale(5.0f), cellSize(0.075f),
-		p(Perlin()),
+		size(1000), horizontalScale(5.0f), verticalScale(5.0f), cellSize(0.075f),
+		perlin(Perlin()),
 		grid(vector<Mesh*>()) {
 		// A default colour map is generated (mountain biome)
-		cm = {
+		colourMap = {
 			vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f),
 			vec3(0.42f, 0.05f, -0.2f),
 			vec3(0.9f, 0.9f, 0.9f), vec3(0.5f, 0.5f, 0.5f), vec3(0.09f, 0.43f, 0.15f), vec3(0.16f, 0.25f, 0.58f)
 		};
 
-		regenerate();
+		generateGrid();
 	}
 
-	PerlinGrid::PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, Perlin p) :
-		size(size), hScale(scaleFactor), vScale(scaleFactor), cellSize(cellSize),
-		p(p),
+	PerlinGrid::PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, Perlin perlin) :
+		size(size), horizontalScale(scaleFactor), verticalScale(scaleFactor), cellSize(cellSize),
+		perlin(perlin),
 		grid(vector<Mesh*>()) {
 		// A default colour map is generated (mountain biome)
-		cm = {
+		colourMap = {
 			vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f),
 			vec3(0.42f, 0.05f, -0.2f),
 			vec3(0.9f, 0.9f, 0.9f), vec3(0.5f, 0.5f, 0.5f), vec3(0.09f, 0.43f, 0.15f), vec3(0.16f, 0.25f, 0.58f)
@@ -33,13 +33,13 @@ namespace Engine {
 			size = MAX_SIZE;
 		}
 
-		regenerate();
+		generateGrid();
 	}
 
 	// Parameter constructor 1 - takes the seed for the Perlin object and the colour map
-	PerlinGrid::PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, GLuint seed, ColourMap cm) :
-		size(size), hScale(scaleFactor), vScale(scaleFactor), cellSize(cellSize),
-		p(Perlin(seed)), cm(cm),
+	PerlinGrid::PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, GLuint seed, ColourMap colourMap) :
+		size(size), horizontalScale(scaleFactor), verticalScale(scaleFactor), cellSize(cellSize),
+		perlin(Perlin(seed)), colourMap(colourMap),
 		grid(vector<Mesh*>()) {
 
 		// Check that performance targets won't be violated
@@ -49,13 +49,13 @@ namespace Engine {
 		}
 
 		// Generate the grid
-		regenerate();
+		generateGrid();
 	}
 
 	// Parameter constructor 2 - also takes the octave count and persistence value to pass to the Perlin object.
-	PerlinGrid::PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, GLuint seed, GLuint octaves, GLfloat persistence, ColourMap cm) :
-		size(size), hScale(scaleFactor), vScale(scaleFactor), cellSize(cellSize),
-		p(Perlin(seed, octaves, persistence)), cm(cm),
+	PerlinGrid::PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, GLuint seed, GLuint octaves, GLfloat persistence, ColourMap colourMap) :
+		size(size), horizontalScale(scaleFactor), verticalScale(scaleFactor), cellSize(cellSize),
+		perlin(Perlin(seed, octaves, persistence)), colourMap(colourMap),
 		grid(vector<Mesh*>()) {
 
 		// Check that performance targets won't be violated
@@ -65,40 +65,40 @@ namespace Engine {
 		}
 
 		// Generate the grid
-		regenerate();
+		generateGrid();
 	}
 
 	// Draw all meshes belonging to this grid.
 	void PerlinGrid::render() {
 
-		for (Mesh* m : grid) {
-			m->drawMesh();
+		for (Mesh* mesh : grid) {
+			mesh->drawMesh();
 		}
 	}
 
 	// Set number of rows and refresh the grid
-	void PerlinGrid::setSize(GLuint s) {
-		size = s;
-		regenerate();
+	void PerlinGrid::setSize(GLuint size) {
+		this->size = size;
+		generateGrid();
 	}
 
 	// Set number of columns and refresh the grid
-	void PerlinGrid::setHorizontalScale(GLfloat hs) {
-		hScale = hs;
+	void PerlinGrid::setHorizontalScale(GLfloat horizontalScale) {
+		this->horizontalScale = horizontalScale;
 	}
 
-	void PerlinGrid::setVerticalScale(GLfloat vs) {
-		vScale = vs;
+	void PerlinGrid::setVerticalScale(GLfloat verticalScale) {
+		this->verticalScale = verticalScale;
 	}
 
 	// Set seed, changing the noise permutation vector, and refresh the grid
 	void PerlinGrid::setSeed(uint seed) {
-		p.setSeed(seed);
-		regenerate();
+		perlin.setSeed(seed);
+		generateGrid();
 	}
 
-	void PerlinGrid::setColourMap(ColourMap cm) {
-		this->cm = cm;
+	void PerlinGrid::setColourMap(ColourMap colourMap) {
+		this->colourMap = colourMap;
 	}
 
 	PerlinGrid::~PerlinGrid() {
@@ -107,7 +107,7 @@ namespace Engine {
 
 	// (Re)generate the necessary information to produce the noise grid according to the
 	// current seed, row, and column count.
-	void PerlinGrid::regenerate() {
+	void PerlinGrid::generateGrid() {
 
 		// If grid already exists - delete old one to remove from scene
 		if (grid.size() == size) {
@@ -142,20 +142,20 @@ namespace Engine {
 		// The total number of values in each vertex array can be counted as :
 		// Double the number of columns, plus an extra two for the first column of each row,  multiplied
 		// by 9 to represent the number of values needed to produce a single cell (x y z, r g b, nx ny nz).
-		vCount = ((size * 2) + 2) * 9;
+		vertexCount = ((size * 2) + 2) * 9;
 
 		GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
 		bool low = true;
 		for (size_t t = 0; t < size; t++) {
-			vertexArray = new GLfloat[vCount];
+			vertexArray = new GLfloat[vertexCount];
 
-			for (int i = 0; i < vCount; i += 9) {
+			for (int i = 0; i < vertexCount; i += 9) {
 				switch (low) {
 					// Lower vertex
 				case true:
 					// x y z
 					vertexArray[i] = x;
-					vertexArray[i + 1] = y + p.octaveNoise2D(x, z);
+					vertexArray[i + 1] = y + perlin.octaveNoise2D(x, z);
 					vertexArray[i + 2] = z;
 
 					low = !low; // next vertex is high
@@ -165,7 +165,7 @@ namespace Engine {
 				case false:
 					// x y z
 					vertexArray[i] = x;
-					vertexArray[i + 1] = y + p.octaveNoise2D(x, z - cellSize);
+					vertexArray[i + 1] = y + perlin.octaveNoise2D(x, z - cellSize);
 					vertexArray[i + 2] = z - cellSize;
 
 					low = !low; // next vertex is low
@@ -214,10 +214,10 @@ namespace Engine {
 
 		// The total number of values in each index array can be counted as:
 		// 6 times the number of columns, as every cell is made up of 2 triangles that require 3 indices to draw.
-		iCount = size * 6;
-		indexArray = new GLuint[iCount];
+		indexCount = size * 6;
+		indexArray = new GLuint[indexCount];
 
-		for (int i = 0; i < iCount; i += 6) {
+		for (int i = 0; i < indexCount; i += 6) {
 			int pivot = (2 * i) / 6;
 
 			indexArray[i] = pivot;
@@ -234,7 +234,7 @@ namespace Engine {
 	// Combine the produced vertices and indices to create a mesh for each row of the grid.
 	void PerlinGrid::createRow() {
 		Mesh* row = new Mesh(COLOURED);
-		row->createMesh(vertexArray, indexArray, vCount, iCount);
+		row->createMesh(vertexArray, indexArray, vertexCount, indexCount);
 		grid.push_back(row);
 
 		// Delete the vertex data used to create the meshes.
@@ -246,19 +246,19 @@ namespace Engine {
 		vec3 colour;
 
 		// High points of the map
-		if (height >= cm.bounds.x) {
-			colour = cm.peak;
+		if (height >= colourMap.bounds.x) {
+			colour = colourMap.peak;
 		}
-		else if (height >= cm.bounds.y) {
-			colour = cm.high;
+		else if (height >= colourMap.bounds.y) {
+			colour = colourMap.high;
 		}
 		// Low points of the map
-		else if (height >= cm.bounds.z) {
-			colour = cm.mid;
+		else if (height >= colourMap.bounds.z) {
+			colour = colourMap.mid;
 		}
 		// Everything lower than the final bound
 		else {
-			colour = cm.low;
+			colour = colourMap.low;
 		}
 
 		return colour;

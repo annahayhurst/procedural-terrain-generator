@@ -264,8 +264,8 @@ namespace Engine {
 			return false;
 		}
 
-		Perlin p = Perlin(seed);
-		grid = new PerlinGrid(size, cellSize, scaleFactor, p);
+		Perlin perlin = Perlin(seed);
+		grid = new PerlinGrid(size, cellSize, scaleFactor, perlin);
 
 		gridExists = true;
 
@@ -273,7 +273,7 @@ namespace Engine {
 	}
 
 	// Interface for creating a grid and adding it to the scene (overload)
-	bool Scene::addGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, Perlin p) {
+	bool Scene::addGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, Perlin perlin) {
 		if (cellSize < 0 || scaleFactor < 0) {
 			std::cerr << "Cannot set a negative size or scale.\n";
 			return false;
@@ -283,7 +283,7 @@ namespace Engine {
 			return false;
 		}
 
-		grid = new PerlinGrid(size, cellSize, scaleFactor, p);
+		grid = new PerlinGrid(size, cellSize, scaleFactor, perlin);
 		gridExists = true;
 
 		return true;
@@ -420,7 +420,7 @@ namespace Engine {
 			};
 
 			cmap.lightColour = vec3(1.0f, 1.0f, 0.85f);
-			cmap.lightDir = vec3(-0.51f, -1.0f, 0.59f);
+			cmap.lightDirection = vec3(-0.51f, -1.0f, 0.59f);
 			break;
 
 		case MIDDAY:
@@ -430,7 +430,7 @@ namespace Engine {
 			};
 
 			cmap.lightColour = vec3(1.0f, 1.0f, 1.0f);
-			cmap.lightDir = vec3(0.0f, -1.0f, 0.0f);
+			cmap.lightDirection = vec3(0.0f, -1.0f, 0.0f);
 			break;
 
 		case EVENING:
@@ -440,7 +440,7 @@ namespace Engine {
 			};
 
 			cmap.lightColour = vec3(0.68f, 0.52f, 0.22f);
-			cmap.lightDir = vec3(0.69f, -0.34f, 0.64f);
+			cmap.lightDirection = vec3(0.69f, -0.34f, 0.64f);
 			break;
 
 		case MIDNIGHT:
@@ -450,12 +450,12 @@ namespace Engine {
 			};
 
 			cmap.lightColour = vec3(0.28f, 0.32f, 0.46f);
-			cmap.lightDir = vec3(0.0f, -1.0f, -0.0f);
+			cmap.lightDirection = vec3(0.0f, -1.0f, -0.0f);
 			break;
 
 		case NONE:
 			cmap.lightColour = vec3(1.0f, 1.0f, 1.0f);
-			cmap.lightDir = vec3(0.0f, -1.f, 0.0f);
+			cmap.lightDirection = vec3(0.0f, -1.f, 0.0f);
 			break;
 
 		default:
@@ -470,7 +470,7 @@ namespace Engine {
 		}
 
 		// Update light colour and direction according to the colour map
-		light = DirectionalLight(cmap.lightColour, cmap.lightDir, 0.6f, 0.8f);
+		light = DirectionalLight(cmap.lightColour, cmap.lightDirection, 0.6f, 0.8f);
 		//light = DirectionalLight(cmap.lightColour, cmap.lightDir, 1.0f, 1.0f);
 		return true;
 	}
@@ -487,8 +487,8 @@ namespace Engine {
 		return true;
 	}
 
-	bool Scene::setCustomColourMap(ColourMap cm){
-		cmap = cm;
+	bool Scene::setCustomColourMap(ColourMap colourMap){
+		cmap = colourMap;
 		biome = CUSTOM_B;
 		return true;
 	}

@@ -22,8 +22,8 @@ namespace Engine {
 		indexCount = indexArrayLength;
 		vertexCount = vertexArrayLength / STRIDE; // Total number of values/stride = actual amount of full vertices
 
-		int sizeVert = sizeof(vertices[0]) * vertexArrayLength;
-		int sizeIdx = sizeof(indices[0]) * indexArrayLength;
+		int vertexArraySize = sizeof(vertices[0]) * vertexArrayLength;
+		int indexArraySize = sizeof(indices[0]) * indexArrayLength;
 
 		// Generate the normals for the primitives to be drawn
 		setNormals(vertices, indices);
@@ -36,12 +36,12 @@ namespace Engine {
 		glGenBuffers(1, &IBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 		// Type of array | how much data | which data | draw type
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeIdx, indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexArraySize, indices, GL_STATIC_DRAW);
 
 		// Bind VBO
 		glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeVert, vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertexArraySize, vertices, GL_STATIC_DRAW);
 
 		// Set attribute pointers for this mesh
 		setAttributePointers();
@@ -159,7 +159,7 @@ namespace Engine {
 			x3 = vertexData[vertexPositionC], y3 = vertexData[vertexPositionC + 1], z3 = vertexData[vertexPositionC + 2];
 
 		// Normalised cross product of the two lines:
-		vec3 norm, line1, line2;
+		vec3 normal, line1, line2;
 
 		// The first vector is a line between vertex a and vertex b
 		line1 = vec3(x2 - x1, y2 - y1, z2 - z1);
@@ -167,9 +167,10 @@ namespace Engine {
 		// The second vector is a line between vertex c and vertex b
 		line2 = vec3(x3 - x1, y3 - y1, z3 - z1);
 
-		norm = glm::cross(line2, line1);
+		normal = glm::cross(line2, line1);
 
-		return normalize(norm);
+		// Convert to unit vector that represents direction (no magnitude)
+		return normalize(normal);
 	}
 
 	void Mesh::setAttributePointers() {
