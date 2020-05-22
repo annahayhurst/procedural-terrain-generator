@@ -39,7 +39,7 @@ namespace Engine {
 		GLint getBufferHeight() { return bufferHeight; }
 
 		std::string getTitle() { return title; }
-		void setTitle(std::string t);
+		void setTitle(std::string title);
 
 		~Window();
 
@@ -57,7 +57,7 @@ namespace Engine {
 		bool keys[1024];
 
 		static void handleKeys(GLFWwindow* window, int key, int code, int action, int mode);
-		static void handleMouse(GLFWwindow* window, GLdouble xPos, GLdouble yPos);
+		static void handleMouse(GLFWwindow* window, GLdouble xPosition, GLdouble yPosition);
 	};
 
 }

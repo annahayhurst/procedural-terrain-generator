@@ -73,7 +73,7 @@ namespace Engine {
 		bool addTextureMesh(Mesh* mesh, MaterialType m, Texture* tex, vec3 pos, vec3 scale, vec4 rot);
 
 		bool addGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, uint seed);
-		bool addGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, Perlin p);
+		bool addGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, Perlin perlin);
 
 		bool setCameraPosition(vec3 pos);
 		bool setCameraAngle(GLfloat pitch, GLfloat yaw);

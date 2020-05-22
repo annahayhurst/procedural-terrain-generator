@@ -36,7 +36,7 @@ namespace Engine {
 	}
 
 	// Bind the texture data to the texture unit so it can be used.
-	void Texture::bindTexture(unsigned char* texData, FileExtension ext) {
+	void Texture::bindTexture(unsigned char* textureData, FileExtension extension) {
 		// Generate one texture and assign it an ID.
 		glGenTextures(1, &id);
 		// Assert that the type of texture for this ID is a 2D image.
@@ -50,7 +50,7 @@ namespace Engine {
 
 		GLenum type1, type2;
 		// Set the channel type according to the image type we have been given
-		switch (ext) {
+		switch (extension) {
 		case PNG:
 			type1 = GL_RGBA;
 			type2 = GL_RGBA;
@@ -67,7 +67,7 @@ namespace Engine {
 
 		// Now create the actual texture
 		// type | initial mipmap | image type | width | height | (legacy value) | loaded data type | stored data type | the data
-		glTexImage2D(GL_TEXTURE_2D, 0, type1, width, height, 0, type2, GL_UNSIGNED_BYTE, texData);
+		glTexImage2D(GL_TEXTURE_2D, 0, type1, width, height, 0, type2, GL_UNSIGNED_BYTE, textureData);
 		// Create mipmaps (different resizes of the texture that will be seen at different distances)
 		glGenerateMipmap(GL_TEXTURE_2D);
 

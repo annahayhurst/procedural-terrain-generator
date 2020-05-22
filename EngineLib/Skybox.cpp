@@ -5,12 +5,12 @@ namespace Engine {
 	Skybox::Skybox() : id(0) {}
 
 	// Load skybox through constructor
-	Skybox::Skybox(vector<std::string> filePaths) : id(0) {
+	Skybox::Skybox(vector<string> filePaths) : id(0) {
 		this->loadSkybox(filePaths);
 	}
 
 	// Load the images at each of the filepaths in the vector and pass them to createFace to make the texture for that cube face.
-	void Skybox::loadSkybox(vector<std::string> filePaths) {
+	void Skybox::loadSkybox(vector<string> filePaths) {
 		if (filePaths.size() != 6) { // check there are the correct number of images
 			std::cerr << "Invalid number of filenames supplied for skybox creation. You must provide 6 filenames.\n";
 			return;

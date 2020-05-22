@@ -40,7 +40,7 @@ namespace Engine {
 		mainWindow = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
 		if (!mainWindow) {
 			// If window creation fails, terminate and exit with error message
-			std::cout << "Error creating GLFW \n";
+			std::cout << "Error creating GLFW window \n";
 			glfwTerminate();
 			return 1;
 		}
@@ -121,7 +121,7 @@ namespace Engine {
 	// Detects key presses/depresses. Sets ASCII equivalent in keys[] to true until depressed
 	void Window::handleKeys(GLFWwindow* window, int key, int code, int action, int mode) {
 		// Get user pointer from current active GLFW window so it can be converted to a Window object
-		Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+		Window* activeWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
 		// If escape key is pressed, exit the program.
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
@@ -132,11 +132,11 @@ namespace Engine {
 		if (key >= 0 && key < 1024) {
 			// Press button
 			if (action == GLFW_PRESS) {
-				theWindow->keys[key] = true;
+				activeWindow->keys[key] = true;
 			}
 			// Depress button
 			else if (action == GLFW_RELEASE) {
-				theWindow->keys[key] = false;
+				activeWindow->keys[key] = false;
 			}
 
 		}
@@ -144,30 +144,30 @@ namespace Engine {
 	}
 
 	// Detect mouse movement and assign appropriate values to dX/dY and lastX/lastY
-	void Window::handleMouse(GLFWwindow* window, GLdouble xPos, GLdouble yPos) {
+	void Window::handleMouse(GLFWwindow* window, GLdouble xPosition, GLdouble yPosition) {
 		// Get user pointer from current active GLFW window so it can be converted to a Window object
-		Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+		Window* activeWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
 		// At the point where the mouse first moves, initialise variables
-		if (theWindow->mouseHasMoved) {
-			theWindow->lastX = xPos;
-			theWindow->lastY = yPos;
-			theWindow->mouseHasMoved = false;
+		if (activeWindow->mouseHasMoved) {
+			activeWindow->lastX = xPosition;
+			activeWindow->lastY = yPosition;
+			activeWindow->mouseHasMoved = false;
 		}
 
 		// Calculate dX and dY
-		theWindow->dX = xPos - theWindow->lastX;
-		theWindow->dY = theWindow->lastY - yPos; // this is reversed because (yPos - lastY) would give 'tank controls'
+		activeWindow->dX = xPosition - activeWindow->lastX;
+		activeWindow->dY = activeWindow->lastY - yPosition; // this is reversed because (yPosition - lastY) would give 'tank controls'
 
 		// Update position values
-		theWindow->lastX = xPos;
-		theWindow->lastY = yPos;
+		activeWindow->lastX = xPosition;
+		activeWindow->lastY = yPosition;
 	}
 
 	// Update the title of the window by converting the passed string to a const char*
-	void Window::setTitle(std::string t) {
-		title = t;
-		glfwSetWindowTitle(mainWindow, t.c_str());
+	void Window::setTitle(std::string title) {
+		this->title = title;
+		glfwSetWindowTitle(mainWindow, title.c_str());
 	}
 
 	// Destructor - destroys window and terminates GLFW processes
