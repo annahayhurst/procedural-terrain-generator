@@ -54,7 +54,7 @@ namespace Engine {
 	struct MeshInfo {
 		Mesh* theMesh;
 		Texture* texture;
-		MaterialType mat;
+		MaterialType materialType;
 		vec3 position, scale;
 		vec4 rotation; // this is a vec4 to store the angle AND the three axes
 	};
@@ -62,36 +62,35 @@ namespace Engine {
 	class Scene {
 	public:
 		Scene(std::string enginePath);
-		Scene(std::string enginePath, BiomeType b, TimeType t, vec3 cameraPosition = vec3(0.0f, 0.0f, 0.0f));
+		Scene(std::string enginePath, BiomeType biome, TimeType time, vec3 cameraPosition = vec3(0.0f, 0.0f, 0.0f));
 		~Scene();
 
-		bool addColourMesh(Mesh* mesh, MaterialType m, vec3 pos = vec3(0.f, 0.f, 0.f));
-		bool addColourMesh(Mesh* mesh, MaterialType m, vec3 pos, vec3 scale, vec4 rot);
-		bool addTextureMesh(Mesh* mesh, MaterialType m, std::string texturePath, vec3 pos = vec3(0.f, 0.f, 0.f));
-		bool addTextureMesh(Mesh* mesh, MaterialType m, std::string texturePath, vec3 pos, vec3 scale, vec4 rot);
-		bool addTextureMesh(Mesh* mesh, MaterialType m, Texture* tex, vec3 pos = vec3(0.f, 0.f, 0.f));
-		bool addTextureMesh(Mesh* mesh, MaterialType m, Texture* tex, vec3 pos, vec3 scale, vec4 rot);
-
+		bool addColourMesh(Mesh* mesh, MaterialType materialType, vec3 position = vec3(0.f, 0.f, 0.f));
+		bool addColourMesh(Mesh* mesh, MaterialType materialType, vec3 position, vec3 scale, vec4 rotation);
+		bool addTextureMesh(Mesh* mesh, MaterialType materialType, std::string texturePath, vec3 position = vec3(0.f, 0.f, 0.f));
+		bool addTextureMesh(Mesh* mesh, MaterialType materialType, std::string texturePath, vec3 position, vec3 scale, vec4 rotation);
+		bool addTextureMesh(Mesh* mesh, MaterialType materialType, Texture* texture, vec3 position = vec3(0.f, 0.f, 0.f));
+		bool addTextureMesh(Mesh* mesh, MaterialType materialType, Texture* texture, vec3 position, vec3 scale, vec4 rotation);
 		bool addGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, uint seed);
 		bool addGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, Perlin perlin);
 
 		bool setCameraPosition(vec3 pos);
 		bool setCameraAngle(GLfloat pitch, GLfloat yaw);
 
-		bool setLightColour(vec3 col);
-		bool setLightIntensity(GLfloat i);
+		bool setLightColour(vec3 colour);
+		bool setLightIntensity(GLfloat intensity);
 
-		bool setGrid(PerlinGrid* g);
-		bool setBiome(BiomeType b);
-		bool setTime(TimeType t);
+		bool setGrid(PerlinGrid* grid);
+		bool setBiome(BiomeType biome);
+		bool setTime(TimeType time);
 		bool setSceneTitle(std::string title);
 
-		bool setCustomColourMap(ColourMap cmap);
-		bool setCustomSkybox(Skybox box);
+		bool setCustomColourMap(ColourMap colourMap);
+		bool setCustomSkybox(Skybox skybox);
 		bool setCustomSkybox(vector<std::string> faces);
 
 		ColourMap getColourMap() { return cmap; };
-		Skybox getSkybox() { return sky; };
+		Skybox getSkybox() { return skybox; };
 		std::string getTitle() { return title; };
 		std::string getEnginePath() { return engineLocation; };
 		PerlinGrid* getGrid() { return grid; };
@@ -105,10 +104,10 @@ namespace Engine {
 		// Objects the scene requires exactly one (or zero) of
 		Window window;
 
-		Skybox sky;
+		Skybox skybox;
 		ColourMap cmap;
 
-		Camera cam;
+		Camera camera;
 		DirectionalLight light;
 
 		TimeType time;
@@ -132,7 +131,7 @@ namespace Engine {
 		vector<Material*> materials;
 
 		// Private functions
-		void init();
+		void initialise();
 		void checkCompatibility();
 		void createShaders();
 		void renderMap();
