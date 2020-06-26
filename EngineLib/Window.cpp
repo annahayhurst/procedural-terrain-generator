@@ -18,7 +18,7 @@ namespace Engine {
 	}
 
 	// Set up GLFW - allow window to display and be interacted with
-	int Window::init() {
+	int Window::initialise() {
 		// Check GLFW has initialised
 		if (!glfwInit()) {
 			// If initialisation fails, exit with error message

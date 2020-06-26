@@ -18,7 +18,7 @@ namespace Engine {
 		Window();
 		Window(GLuint width, GLuint height, std::string title);
 
-		int init();
+		int initialise();
 		void swapBuffers() { glfwSwapBuffers(mainWindow); }
 		bool shouldClose() { return glfwWindowShouldClose(mainWindow); }
 		bool isHidden() { return hidden; }
