@@ -20,7 +20,7 @@ int main() {
 
 void testScene() {
 	std::string path = ".\\..\\EngineLib"; // location of engine relative to executable
-	Scene s = Scene(path); // create the scene
+	Scene scene = Scene(path); // create the scene
 
 	// Vertices for the two example pyramid meshes
 	GLfloat colourVertices[] = {
@@ -71,22 +71,22 @@ void testScene() {
 	Mesh* mesh3 = new Mesh(TEXTURED);
 	mesh3->createMesh(baseVertices, baseIndices, 32, 6);
 
-	Texture* t = new Texture();
-	t->generateTexture("textures\\checker.png", PNG);
+	Texture* texture = new Texture();
+	texture->generateTexture("textures\\checker.png", PNG);
 
 	// Adding the meshes to the scene, to demonstrate the different overloads in action
-	s.addColourMesh(mesh1, SHINY, vec3(0.f, 0.f, 0.f));
-	s.addTextureMesh(mesh2, DULL, t, vec3(2.5f, 0.f, 0.f), vec3(1.0f, 1.5f, 1.0f), vec4(1.f, 1.0f, 0.f, 90.0f));
-	s.addTextureMesh(mesh3, DULL, "textures\\wood.jpg", vec3(10.0f, -2.5f, -10.0f), vec3(25.0f, 1.0f, 25.0f), vec4(0.0f, 0.0f, 0.0f, 0.0f));
+	scene.addColourMesh(mesh1, SHINY, vec3(0.f, 0.f, 0.f));
+	scene.addTextureMesh(mesh2, DULL, texture, vec3(2.5f, 0.f, 0.f), vec3(1.0f, 1.5f, 1.0f), vec4(1.f, 1.0f, 0.f, 90.0f));
+	scene.addTextureMesh(mesh3, DULL, "textures\\wood.jpg", vec3(10.0f, -2.5f, -10.0f), vec3(25.0f, 1.0f, 25.0f), vec4(0.0f, 0.0f, 0.0f, 0.0f));
 
 	// Setting other scene properties
-	s.setSceneTitle("Add Mesh Test");
-	s.setTime(EVENING);
-	s.setBiome(GRASSLAND);
+	scene.setSceneTitle("Add Mesh Test");
+	scene.setTime(EVENING);
+	scene.setBiome(GRASSLAND);
 
 	// Point the camera at the drawn meshes
-	s.setCameraPosition(vec3(1.75f, 1.62f, 11.0f));
-	s.setCameraAngle(-12, -89);
+	scene.setCameraPosition(vec3(1.75f, 1.62f, 11.0f));
+	scene.setCameraAngle(-12, -89);
 
-	s.render();
+	scene.render();
 }

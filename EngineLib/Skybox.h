@@ -15,14 +15,15 @@
 #include "stb_image.h"
 
 using std::vector;
+using std::string;
 
 namespace Engine {
 	class Skybox {
 	public:
 		Skybox();
-		Skybox(vector<std::string> filePaths);
+		Skybox(vector<string> filePaths);
 
-		void loadSkybox(vector<std::string> filePaths);
+		void loadSkybox(vector<string> filePaths);
 		void drawSkybox();
 		~Skybox() {};
 

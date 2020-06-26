@@ -28,32 +28,32 @@ namespace Engine {
 	class PerlinGrid {
 	public:
 		PerlinGrid();
-		PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, Perlin p);
-		PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, GLuint seed, ColourMap cm);
-		PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, GLuint seed, GLuint octaves, GLfloat persistence, ColourMap cm);
+		PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, Perlin perlin);
+		PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, GLuint seed, ColourMap colourMap);
+		PerlinGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, GLuint seed, GLuint octaves, GLfloat persistence, ColourMap colourMap);
 
 		void render();
 
 		GLuint getSize() { return size; };
-		GLfloat getHorizontalScale() { return hScale; };
-		GLfloat getVerticalScale() { return vScale; };
-		GLuint getSeed() { return p.getSeed(); };
+		GLfloat getHorizontalScale() { return horizontalScale; };
+		GLfloat getVerticalScale() { return verticalScale; };
+		GLuint getSeed() { return perlin.getSeed(); };
 
 		void setSize(GLuint s);
-		void setHorizontalScale(GLfloat hs);
-		void setVerticalScale(GLfloat vs);
+		void setHorizontalScale(GLfloat horizontalScale);
+		void setVerticalScale(GLfloat verticalScale);
 		void setSeed(uint seed);
-		void setColourMap(ColourMap cm);
+		void setColourMap(ColourMap colourMap);
 
 		~PerlinGrid();
 
 	private:
 		GLuint size;
-		GLfloat hScale, vScale;
-		GLsizei vCount, iCount;
+		GLfloat horizontalScale, verticalScale;
+		GLsizei vertexCount, indexCount;
 
-		Perlin p;
-		ColourMap cm;
+		Perlin perlin;
+		ColourMap colourMap;
 
 		GLfloat* vertexArray;
 		GLuint* indexArray;
@@ -62,7 +62,7 @@ namespace Engine {
 		const uint MAX_SIZE = 4000;
 		GLfloat cellSize;
 
-		void regenerate();
+		void generateGrid();
 
 		void generateVertexArrays();
 		void generateIndexArray();

@@ -3,31 +3,31 @@
 namespace Engine {
 	// Default constructor
 	Scene::Scene(std::string enginePath) : title("New Scene"), engineLocation(enginePath) {
-		init();
+		initialise();
 		setBiome(MOUNTAINS);
 		setTime(MORNING);
-		cam = Camera(vec3(5.f, 5.f, 0.f), vec3(0.f, 1.f, 0.f), -90.0f, 0.0f, 1.f, 1.f);
+		camera = Camera(vec3(5.f, 5.f, 0.f), vec3(0.f, 1.f, 0.f), -90.0f, 0.0f, 1.f, 1.f);
 	}
 
 	// Constructor taking a biome type and potentially a camera position, although the latter is optional
-	Scene::Scene(std::string enginePath, BiomeType b, TimeType t, vec3 cameraPosition) 
+	Scene::Scene(std::string enginePath, BiomeType biome, TimeType time, vec3 cameraPosition) 
 		: title("New Scene"), engineLocation(enginePath) {
-		init();
-		setBiome(b);
-		setTime(t);
-		cam = Camera(cameraPosition, vec3(0.f, 1.f, 0.f), -90.0f, 0.0f, 2.5f, 2.5f);
+		initialise();
+		setBiome(biome);
+		setTime(time);
+		camera = Camera(cameraPosition, vec3(0.f, 1.f, 0.f), -90.0f, 0.0f, 2.5f, 2.5f);
 	}
 
 	// Initialise the key components of the scene that MUST be in place for any other function to run.
-	void Scene::init() {
+	void Scene::initialise() {
 		// Initialise storage vectors
 		shaders = vector<Shader*>();
 		meshes = vector<MeshInfo*>();
 		materials = vector<Material*>();
 
-		// Create the window and init so all libraries are prepared
+		// Create the window and initialise so all libraries are prepared
 		window = Window(1366, 768, title);
-		window.init();
+		window.initialise();
 		window.hide();
 		windowOpen = true;
 
@@ -62,23 +62,23 @@ namespace Engine {
 
 	// Create three key shaders and add them to their data structure
 	void Scene::createShaders() {
-		Shader* skyShader = new Shader();
-		std::string skyPathV = makeFullPath("\\shaders\\skyboxVertex.shader");
-		std::string skyPathF = makeFullPath("\\shaders\\skyboxFragment.shader");
-		skyShader->createShaders(skyPathV.c_str(), skyPathF.c_str());
-		shaders.push_back(skyShader);
+		Shader* skyboxShader = new Shader();
+		std::string skyboxVertexPath = makeFullPath("\\shaders\\skyboxVertex.shader");
+		std::string skyboxFragmentPath = makeFullPath("\\shaders\\skyboxFragment.shader");
+		skyboxShader->createShaders(skyboxVertexPath.c_str(), skyboxFragmentPath.c_str());
+		shaders.push_back(skyboxShader);
 
-		Shader* colShader = new Shader();
-		std::string colPathV = makeFullPath("\\shaders\\colourVertex.shader");
-		std::string colPathF = makeFullPath("\\shaders\\colourFragment.shader");
-		colShader->createShaders(colPathV.c_str(), colPathF.c_str());
-		shaders.push_back(colShader);
+		Shader* colourShader = new Shader();
+		std::string colourVertexPath = makeFullPath("\\shaders\\colourVertex.shader");
+		std::string colourFragmentPath = makeFullPath("\\shaders\\colourFragment.shader");
+		colourShader->createShaders(colourVertexPath.c_str(), colourFragmentPath.c_str());
+		shaders.push_back(colourShader);
 
-		Shader* texShader = new Shader();
-		std::string texPathV = makeFullPath("\\shaders\\textureVertex.shader");
-		std::string texPathF = makeFullPath("\\shaders\\textureFragment.shader");
-		texShader->createShaders(texPathV.c_str(), texPathF.c_str());
-		shaders.push_back(texShader);
+		Shader* textureShader = new Shader();
+		std::string textureVertexPath = makeFullPath("\\shaders\\textureVertex.shader");
+		std::string textureFragmentPath = makeFullPath("\\shaders\\textureFragment.shader");
+		textureShader->createShaders(textureVertexPath.c_str(), textureFragmentPath.c_str());
+		shaders.push_back(textureShader);
 	}
 
 	// Initialise final variables and run the rendering loop until the main window must close.
@@ -103,8 +103,8 @@ namespace Engine {
 		projection = glm::perspective(glm::radians(40.0f), (GLfloat)(window.getBufferWidth() / window.getBufferHeight()), 0.1f, 20000.f);
 
 		// Adjust the camera speed to be able to navigate across a large grid appropriately
-		if (gridExists) this->cam.setMovementSpeed(grid->getHorizontalScale() / 1.5f + grid->getVerticalScale() / 2.5f);
-		//if (gridExists) this->cam.setMovementSpeed(0.5f);
+		if (gridExists) this->camera.setMovementSpeed(grid->getHorizontalScale() / 1.5f + grid->getVerticalScale() / 2.5f);
+		//if (gridExists) this->camera.setMovementSpeed(0.5f);
 
 		// For as long as the main window isn't closing -
 		while (!window.shouldClose()) {
@@ -121,11 +121,11 @@ namespace Engine {
 			glfwPollEvents();
 
 			// Handle/map key presses
-			cam.keyControl(window.getKeys(), deltaTime);
-			cam.mouseControl(window.getDx(), window.getDy());
+			camera.keyControl(window.getKeys(), deltaTime);
+			camera.mouseControl(window.getDx(), window.getDy());
 
 			// Set view
-			view = cam.getViewMatrix();
+			view = camera.getViewMatrix();
 
 			// Update how the scene looks
 			renderMap();
@@ -154,7 +154,7 @@ namespace Engine {
 	}
 
 	// Interface for creating a colour mesh and adding it to the scene
-	bool Scene::addColourMesh(Mesh* mesh, MaterialType m, vec3 pos) {
+	bool Scene::addColourMesh(Mesh* mesh, MaterialType materialType, vec3 position) {
 		// Check type matches
 		if (mesh->getType() != COLOURED) {
 			std::cerr << "Cannot add a TEXTURED mesh as a colour mesh.\n";
@@ -162,14 +162,14 @@ namespace Engine {
 		}
 
 		// Create info for this mesh and store
-		MeshInfo* mi = new MeshInfo{ mesh, nullptr, m, pos, vec3(1.0f, 1.0f, 1.0f), vec4(0.0f, 1.0f, 0.0f, 0.0f) };
-		meshes.push_back(mi);
+		MeshInfo* meshInfo = new MeshInfo{ mesh, nullptr, materialType, position, vec3(1.0f, 1.0f, 1.0f), vec4(0.0f, 1.0f, 0.0f, 0.0f) };
+		meshes.push_back(meshInfo);
 
 		return true;
 	}
 
 	// Interface for creating a colour mesh and adding it to the scene (overload)
-	bool Scene::addColourMesh(Mesh* mesh, MaterialType m, vec3 pos, vec3 scale, vec4 rot) {
+	bool Scene::addColourMesh(Mesh* mesh, MaterialType materialType, vec3 position, vec3 scale, vec4 rotation) {
 		// Check type matches
 		if (mesh->getType() != COLOURED) {
 			std::cerr << "Cannot add a TEXTURED mesh as a colour mesh.\n";
@@ -177,78 +177,78 @@ namespace Engine {
 		}
 
 		// Create info for this mesh and store
-		MeshInfo* mi = new MeshInfo{ mesh, nullptr, m, pos, scale, rot };
-		meshes.push_back(mi);
+		MeshInfo* meshInfo = new MeshInfo{ mesh, nullptr, materialType, position, scale, rotation };
+		meshes.push_back(meshInfo);
 
 		return true;
 	}
 
 	// Interface for creating a textured mesh and adding it to the scene
-	bool Scene::addTextureMesh(Mesh* mesh, MaterialType m, std::string texturePath, vec3 pos) {
+	bool Scene::addTextureMesh(Mesh* mesh, MaterialType materialType, std::string texturePath, vec3 position) {
 		// Check filepath exists
 		if (!verifyTexturePath(texturePath)) {
 			return false;
 		}
 		else {
-			Texture* t = new Texture();
+			Texture* texture = new Texture();
 			if (texturePath.find(".jpg")) {
-				t->generateTexture(texturePath.c_str(), JPG);
+				texture->generateTexture(texturePath.c_str(), JPG);
 			}
 			else if (texturePath.find(".png")) {
-				t->generateTexture(texturePath.c_str(), PNG);
+				texture->generateTexture(texturePath.c_str(), PNG);
 			}
 
-			MeshInfo* mi = new MeshInfo{ mesh, t, m, pos, vec3(1.f, 1.f, 1.f), vec4(0.f, 1.f, 0.f, 0.f) };
-			meshes.push_back(mi);
+			MeshInfo* meshInfo = new MeshInfo{ mesh, texture, materialType, position, vec3(1.f, 1.f, 1.f), vec4(0.f, 1.f, 0.f, 0.f) };
+			meshes.push_back(meshInfo);
 		}
 
 		return true;
 	}
 
 	// Interface for creating a textured mesh and adding it to the scene (overload)
-	bool Scene::addTextureMesh(Mesh* mesh, MaterialType m, std::string texturePath, vec3 pos, vec3 scale, vec4 rot) {
+	bool Scene::addTextureMesh(Mesh* mesh, MaterialType materialType, std::string texturePath, vec3 position, vec3 scale, vec4 rotation) {
 
 		if (!verifyTexturePath(texturePath)) {
 			return false;
 		}
 		else {
-			Texture* t = new Texture();
+			Texture* texture = new Texture();
 			if (texturePath.find(".jpg")) {
-				t->generateTexture(texturePath.c_str(), JPG);
+				texture->generateTexture(texturePath.c_str(), JPG);
 			}
 			else if (texturePath.find(".png")) {
-				t->generateTexture(texturePath.c_str(), PNG);
+				texture->generateTexture(texturePath.c_str(), PNG);
 			}
-			MeshInfo* mi = new MeshInfo{ mesh, t, m, pos, scale, rot };
-			meshes.push_back(mi);
+			MeshInfo* meshInfo = new MeshInfo{ mesh, texture, materialType, position, scale, rotation };
+			meshes.push_back(meshInfo);
 		}
 
 
 		return true;
 	}
 
-	bool Scene::addTextureMesh(Mesh* mesh, MaterialType m, Texture* tex, vec3 pos) {
+	bool Scene::addTextureMesh(Mesh* mesh, MaterialType materialType, Texture* texture, vec3 position) {
 		// Check correct type
 		if (mesh->getType() != TEXTURED) {
 			std::cerr << "Cannot add a COLOURED mesh as a texture mesh.\n";
 			return false;
 		}
 
-		MeshInfo* mi = new MeshInfo{ mesh, tex, m, pos, vec3(1.f, 1.f, 1.f), vec4(0.f, 1.f, 0.f, 0.f) };
-		meshes.push_back(mi);
+		MeshInfo* meshInfo = new MeshInfo{ mesh, texture, materialType, position, vec3(1.f, 1.f, 1.f), vec4(0.f, 1.f, 0.f, 0.f) };
+		meshes.push_back(meshInfo);
 
 		return true;
 	}
 
-	bool Scene::addTextureMesh(Mesh* mesh, MaterialType m, Texture* tex, vec3 pos, vec3 scale, vec4 rot) {
+	bool Scene::addTextureMesh(Mesh* mesh, MaterialType materialType, Texture* texture, vec3 position, vec3 scale, vec4 rotation) {
 		// Check correct type
 		if (mesh->getType() != TEXTURED) {
 			std::cerr << "Cannot add a COLOURED mesh as a texture mesh.\n";
 			return false;
 		}
 
-		MeshInfo* mi = new MeshInfo{ mesh, tex, m, pos, scale, rot };
-		meshes.push_back(mi);
+		MeshInfo* meshInfo = new MeshInfo{ mesh, texture, materialType, position, scale, rotation };
+		meshes.push_back(meshInfo);
 
 		return true;
 	}
@@ -264,8 +264,8 @@ namespace Engine {
 			return false;
 		}
 
-		Perlin p = Perlin(seed);
-		grid = new PerlinGrid(size, cellSize, scaleFactor, p);
+		Perlin perlin = Perlin(seed);
+		grid = new PerlinGrid(size, cellSize, scaleFactor, perlin);
 
 		gridExists = true;
 
@@ -273,7 +273,7 @@ namespace Engine {
 	}
 
 	// Interface for creating a grid and adding it to the scene (overload)
-	bool Scene::addGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, Perlin p) {
+	bool Scene::addGrid(GLuint size, GLfloat cellSize, GLfloat scaleFactor, Perlin perlin) {
 		if (cellSize < 0 || scaleFactor < 0) {
 			std::cerr << "Cannot set a negative size or scale.\n";
 			return false;
@@ -283,15 +283,15 @@ namespace Engine {
 			return false;
 		}
 
-		grid = new PerlinGrid(size, cellSize, scaleFactor, p);
+		grid = new PerlinGrid(size, cellSize, scaleFactor, perlin);
 		gridExists = true;
 
 		return true;
 	}
 
 	// Update position of main camera
-	bool Scene::setCameraPosition(vec3 pos) {
-		cam.setPosition(pos);
+	bool Scene::setCameraPosition(vec3 position) {
+		camera.setPosition(position);
 		return true;
 	}
 
@@ -302,42 +302,42 @@ namespace Engine {
 			return false;
 		}
 
-		cam.setPitch(pitch);
-		cam.setYaw(yaw);
+		camera.setPitch(pitch);
+		camera.setYaw(yaw);
 		return true;
 	}
 
 	// Change light colour, checking that rgb values are valid
-	bool Scene::setLightColour(vec3 col) {
-		if (col.x > 1.0f || col.y > 1.0f || col.z > 1.0f) {
+	bool Scene::setLightColour(vec3 colour) {
+		if (colour.r > 1.0f || colour.g > 1.0f || colour.b > 1.0f) {
 			std::cerr << "RGB values must be equal to or less than 1.0.\n";
 			return false;
 		}
 
-		if (col.x < 0.0f || col.y < 0.0f || col.z < 0.0f) {
+		if (colour.r < 0.0f || colour.g < 0.0f || colour.b < 0.0f) {
 			std::cerr << "RGB values must be greater than 0.0.\n";
 			return false;
 		}
 
-		light.setColour(col);
+		light.setColour(colour);
 		return true;
 	}
 
 	// Update light intensity, checking it is within a valid range.
-	bool Scene::setLightIntensity(GLfloat i) {
-		if (i < 0.0f || i > 1.0f) {
+	bool Scene::setLightIntensity(GLfloat intensity) {
+		if (intensity < 0.0f || intensity > 1.0f) {
 			std::cerr << "Light intensity must be between 0.0 and 1.0.\n";
 			return false;
 		}
 
-		light.setAmbientIntensity(i);
-		light.setDiffuseIntensity(i);
+		light.setAmbientIntensity(intensity);
+		light.setDiffuseIntensity(intensity);
 		return true;
 	}
 
 	// Replace the grid (if it exists) with a pointer to a new one 
-	bool Scene::setGrid(PerlinGrid* g) {
-		if (g == nullptr) {
+	bool Scene::setGrid(PerlinGrid* grid) {
+		if (grid == nullptr) {
 			std::cerr << "Cannot assign a nullpointer to the grid.\n";
 			return false;
 		}
@@ -346,17 +346,17 @@ namespace Engine {
 			deleteGrid();
 		}
 
-		grid = g;
+		grid = grid;
 		gridExists = true;
 
 		return true;
 	}
 
 	// Using the selected biome, construct the appropriate colour map.
-	bool Scene::setBiome(BiomeType b) {
+	bool Scene::setBiome(BiomeType biome) {
 		vector<std::string> faces;
 
-		switch (b) {
+		switch (biome) {
 		case GRASSLAND:
 			cmap.bounds = vec3(0.5f, 0.05f, -0.4f);
 			cmap.peak = vec3(0.49f, 0.91f, 0.38f);
@@ -402,15 +402,15 @@ namespace Engine {
 			return false;
 		}
 
-		biome = b;
+		this->biome = biome;
 
 		return true;
 	}
 
 	// Set the time of day, with its corresponding skybox and light colour.
-	bool Scene::setTime(TimeType t) {
+	bool Scene::setTime(TimeType time) {
 		vector<std::string> faces;
-		time = t;
+		this->time = time;
 
 		switch (time) {
 		case MORNING:
@@ -420,7 +420,7 @@ namespace Engine {
 			};
 
 			cmap.lightColour = vec3(1.0f, 1.0f, 0.85f);
-			cmap.lightDir = vec3(-0.51f, -1.0f, 0.59f);
+			cmap.lightDirection = vec3(-0.51f, -1.0f, 0.59f);
 			break;
 
 		case MIDDAY:
@@ -430,7 +430,7 @@ namespace Engine {
 			};
 
 			cmap.lightColour = vec3(1.0f, 1.0f, 1.0f);
-			cmap.lightDir = vec3(0.0f, -1.0f, 0.0f);
+			cmap.lightDirection = vec3(0.0f, -1.0f, 0.0f);
 			break;
 
 		case EVENING:
@@ -440,7 +440,7 @@ namespace Engine {
 			};
 
 			cmap.lightColour = vec3(0.68f, 0.52f, 0.22f);
-			cmap.lightDir = vec3(0.69f, -0.34f, 0.64f);
+			cmap.lightDirection = vec3(0.69f, -0.34f, 0.64f);
 			break;
 
 		case MIDNIGHT:
@@ -450,12 +450,12 @@ namespace Engine {
 			};
 
 			cmap.lightColour = vec3(0.28f, 0.32f, 0.46f);
-			cmap.lightDir = vec3(0.0f, -1.0f, -0.0f);
+			cmap.lightDirection = vec3(0.0f, -1.0f, -0.0f);
 			break;
 
 		case NONE:
 			cmap.lightColour = vec3(1.0f, 1.0f, 1.0f);
-			cmap.lightDir = vec3(0.0f, -1.f, 0.0f);
+			cmap.lightDirection = vec3(0.0f, -1.f, 0.0f);
 			break;
 
 		default:
@@ -465,36 +465,36 @@ namespace Engine {
 
 		// Create and load the skybox faces from the chosen file locations
 		if (time != NONE) {
-			sky = Skybox();
-			sky.loadSkybox(faces);
+			skybox = Skybox();
+			skybox.loadSkybox(faces);
 		}
 
 		// Update light colour and direction according to the colour map
-		light = DirectionalLight(cmap.lightColour, cmap.lightDir, 0.6f, 0.8f);
+		light = DirectionalLight(cmap.lightColour, cmap.lightDirection, 0.6f, 0.8f);
 		//light = DirectionalLight(cmap.lightColour, cmap.lightDir, 1.0f, 1.0f);
 		return true;
 	}
 
 	// Sets a title for the scene by modifying the main window's title (as long as it opened successfully)
-	bool Scene::setSceneTitle(std::string t) {
+	bool Scene::setSceneTitle(std::string title) {
 		if (!windowOpen) {
 			std::cerr << "Could not assign title; main window was not open.\n";
 			return false;
 		}
 
-		title = t;
+		title = title;
 		window.setTitle(title);
 		return true;
 	}
 
-	bool Scene::setCustomColourMap(ColourMap cm){
-		cmap = cm;
+	bool Scene::setCustomColourMap(ColourMap colourMap){
+		cmap = colourMap;
 		biome = CUSTOM_B;
 		return true;
 	}
 
-	bool Scene::setCustomSkybox(Skybox box) {
-		sky = box;
+	bool Scene::setCustomSkybox(Skybox skybox) {
+		this->skybox = skybox;
 		time = CUSTOM_T;
 		return true;
 	}
@@ -504,8 +504,8 @@ namespace Engine {
 			std::cerr << "Number of faces provided for skybox must be 6.\n";
 		}
 
-		sky = Skybox();
-		sky.loadSkybox(faces);
+		skybox = Skybox();
+		skybox.loadSkybox(faces);
 		time = CUSTOM_T;
 
 		return true;
@@ -529,7 +529,7 @@ namespace Engine {
 		// Update projection and view uniforms
 		glUniformMatrix4fv(uProjection, 1, GL_FALSE, value_ptr(projection));
 		glUniformMatrix4fv(uView, 1, GL_FALSE, value_ptr(view));
-		cam.updateUniformPosition(shaders[1]);
+		camera.updateUniformPosition(shaders[1]);
 	}
 
 	// Render the grid object using the colour shader
@@ -540,7 +540,7 @@ namespace Engine {
 		uProjection = shaders[1]->getProjectionUL();
 		uView = shaders[1]->getViewUL();
 
-		cam.updateUniformPosition(shaders[1]);
+		camera.updateUniformPosition(shaders[1]);
 		light.useLight(shaders[1]);
 
 		// Update projection and depthlessView uniforms
@@ -564,7 +564,7 @@ namespace Engine {
 		glDepthFunc(GL_LEQUAL);
 
 		// Remove translation properties of view matrix by converting to mat3 and then back
-		mat4 depthlessView = mat4(glm::mat3(cam.getViewMatrix()));
+		mat4 depthlessView = mat4(glm::mat3(camera.getViewMatrix()));
 
 		shaders[0]->useShaders();
 		uProjection = shaders[0]->getProjectionUL();
@@ -572,9 +572,9 @@ namespace Engine {
 
 		glUniformMatrix4fv(uProjection, 1, GL_FALSE, value_ptr(projection));
 		glUniformMatrix4fv(uView, 1, GL_FALSE, value_ptr(depthlessView));
-		cam.updateUniformPosition(shaders[0]);
+		camera.updateUniformPosition(shaders[0]);
 
-		sky.drawSkybox();
+		skybox.drawSkybox();
 
 		glDepthFunc(GL_LESS);
 	}
@@ -587,25 +587,25 @@ namespace Engine {
 		uProjection = shaders[2]->getProjectionUL();
 		uView = shaders[2]->getViewUL();
 
-		cam.updateUniformPosition(shaders[2]);
+		camera.updateUniformPosition(shaders[2]);
 		light.useLight(shaders[2]);
 
 		glUniformMatrix4fv(uProjection, 1, GL_FALSE, value_ptr(projection));
 		glUniformMatrix4fv(uView, 1, GL_FALSE, value_ptr(view));
 
-		for (MeshInfo* mi : meshes) {
-			if (mi->texture != nullptr) {
+		for (MeshInfo* meshInfo : meshes) {
+			if (meshInfo->texture != nullptr) {
 				mat4 model = mat4(1.0f);
-				model = glm::translate(model, mi->position);
-				model = glm::scale(model, mi->scale);
-				if (mi->rotation.w > 0) model = glm::rotate(model, glm::radians(mi->rotation.w), vec3(mi->rotation.x, mi->rotation.y, mi->rotation.z));
+				model = glm::translate(model, meshInfo->position);
+				model = glm::scale(model, meshInfo->scale);
+				if (meshInfo->rotation.w > 0) model = glm::rotate(model, glm::radians(meshInfo->rotation.w), vec3(meshInfo->rotation.x, meshInfo->rotation.y, meshInfo->rotation.z));
 
-				mi->texture->useTexture();
+				meshInfo->texture->useTexture();
 
-				materials[mi->mat]->useMaterial(shaders[2]);
+				materials[meshInfo->materialType]->useMaterial(shaders[2]);
 				glUniformMatrix4fv(uModel, 1, GL_FALSE, value_ptr(model));
 
-				mi->theMesh->drawMesh();
+				meshInfo->theMesh->drawMesh();
 			}
 		}
 
@@ -619,24 +619,24 @@ namespace Engine {
 		uProjection = shaders[1]->getProjectionUL();
 		uView = shaders[1]->getViewUL();
 
-		cam.updateUniformPosition(shaders[1]);
-		view = cam.getViewMatrix();
+		camera.updateUniformPosition(shaders[1]);
+		view = camera.getViewMatrix();
 		light.useLight(shaders[1]);
 
 		glUniformMatrix4fv(uProjection, 1, GL_FALSE, value_ptr(projection));
 		glUniformMatrix4fv(uView, 1, GL_FALSE, value_ptr(view));
 
-		for (MeshInfo* mi : meshes) {
-			if (mi->texture == nullptr) {
+		for (MeshInfo* meshInfo : meshes) {
+			if (meshInfo->texture == nullptr) {
 				mat4 model = mat4(1.0f);
-				model = glm::translate(model, mi->position);
-				model = glm::scale(model, mi->scale);
-				if (mi->rotation.w > 0) model = glm::rotate(model, glm::radians(mi->rotation.w), vec3(mi->rotation.x, mi->rotation.y, mi->rotation.z));
+				model = glm::translate(model, meshInfo->position);
+				model = glm::scale(model, meshInfo->scale);
+				if (meshInfo->rotation.w > 0) model = glm::rotate(model, glm::radians(meshInfo->rotation.w), vec3(meshInfo->rotation.x, meshInfo->rotation.y, meshInfo->rotation.z));
 
-				materials[mi->mat]->useMaterial(shaders[1]);
+				materials[meshInfo->materialType]->useMaterial(shaders[1]);
 				glUniformMatrix4fv(uModel, 1, GL_FALSE, value_ptr(model));
 
-				mi->theMesh->drawMesh();
+				meshInfo->theMesh->drawMesh();
 			}
 		}
 	}
@@ -648,17 +648,17 @@ namespace Engine {
 			return false;
 		}
 
-		Texture t;
+		Texture texture;
 		if (texturePath.find(".jpg")) {
-			t = Texture();
-			if (!(t.generateTexture(texturePath.c_str(), JPG))) {
+			texture = Texture();
+			if (!(texture.generateTexture(texturePath.c_str(), JPG))) {
 				std::cerr << "Could not produce mesh with this texture.";
 				return false;
 			}
 		}
 		else if (texturePath.find(".png")) {
-			t = Texture();
-			if (!(t.generateTexture(texturePath.c_str(), PNG))) {
+			texture = Texture();
+			if (!(texture.generateTexture(texturePath.c_str(), PNG))) {
 				std::cerr << "Could not produce mesh with this texture.";
 				return false;
 			}
@@ -687,17 +687,17 @@ namespace Engine {
 	Scene::~Scene() {
 		if (gridExists) deleteGrid();
 
-		for (MeshInfo* mi : meshes) {
-			delete mi->theMesh;
-			if (mi->texture != nullptr) delete mi->texture;
+		for (MeshInfo* meshInfo : meshes) {
+			delete meshInfo->theMesh;
+			if (meshInfo->texture != nullptr) delete meshInfo->texture;
 
-			delete mi;
-			mi = nullptr;
+			delete meshInfo;
+			meshInfo = nullptr;
 		}
 
-		for (Shader* s : shaders) delete s;
+		for (Shader* shader : shaders) delete shader;
 
-		for (Material* m : materials) delete m;
+		for (Material* material : materials) delete material;
 	}
 
 }

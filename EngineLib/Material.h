@@ -15,15 +15,15 @@ namespace Engine {
 	class Material {
 	public:
 		Material();
-		Material(GLfloat sInt, GLuint shininess);
+		Material(GLfloat specularIntensity, GLuint shininess);
 
-		void useMaterial(Shader* s);
+		void useMaterial(Shader* shader);
 
 		GLfloat getSpecularIntensity() { return specularIntensity; };
 		GLuint getShininess() { return shininess; };
 
-		void setSpecularIntensity(GLfloat sIntensity) { specularIntensity = sIntensity; };
-		void setShininess(GLuint shine) { shininess = shine; };
+		void setSpecularIntensity(GLfloat specularIntensity) { this->specularIntensity = specularIntensity; };
+		void setShininess(GLuint shininess) { this->shininess = shininess; };
 
 		~Material() {};
 

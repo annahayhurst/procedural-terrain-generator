@@ -27,9 +27,9 @@ namespace Engine {
 		~FPSCounter();
 
 	private:
-		Window* theWindow;
+		Window* window;
 		std::string title;
-		GLdouble previousTime, minInterval, fps;
+		GLdouble previousTime, minimumInterval, fps;
 		int frameCount;
 	};
 

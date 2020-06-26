@@ -13,13 +13,13 @@ namespace UnitTests_PCG {
 	public:
 		// Test default constructor
 		TEST_METHOD(Material_DefaultConstructor) {
-			Engine::Material mat = Engine::Material();
+			Engine::Material materialType = Engine::Material();
 			
 			GLfloat spec = 0.5f;
-			Assert::AreEqual(mat.getSpecularIntensity(), spec);
+			Assert::AreEqual(materialType.getSpecularIntensity(), spec);
 			
 			GLuint shininess = 32;
-			Assert::AreEqual(mat.getShininess(), shininess);
+			Assert::AreEqual(materialType.getShininess(), shininess);
 
 		}
 
@@ -27,10 +27,10 @@ namespace UnitTests_PCG {
 			GLfloat spec = 0.75f;
 			GLuint shininess = 64;
 
-			Engine::Material mat = Engine::Material(spec, shininess);
+			Engine::Material materialType = Engine::Material(spec, shininess);
 
-			Assert::AreEqual(mat.getSpecularIntensity(), spec);
-			Assert::AreEqual(mat.getShininess(), shininess);
+			Assert::AreEqual(materialType.getSpecularIntensity(), spec);
+			Assert::AreEqual(materialType.getShininess(), shininess);
 
 		}
 

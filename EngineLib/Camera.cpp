@@ -18,8 +18,8 @@ namespace Engine {
 	}
 
 	// Set the current camera position in the uniform found in the fragment shader
-	void Camera::updateUniformPosition(Shader* s) {
-		glUniform3f(s->getCameraPositionUL(), this->getPosition().x, this->getPosition().y, this->getPosition().z);
+	void Camera::updateUniformPosition(Shader* shader) {
+		glUniform3f(shader->getCameraPositionUL(), this->getPosition().x, this->getPosition().y, this->getPosition().z);
 	}
 
 	// Assign camera navigation to WASD/up-left-down-right. Makes use of dT to move at appropriate speed

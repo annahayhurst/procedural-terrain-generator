@@ -18,12 +18,12 @@ namespace Engine {
 
 	// Create mesh by binding the appropriate vertex arrays and the VAO, IBO and VBO.
 	// End by unbinding everything for next use.
-	void Mesh::createMesh(GLfloat* vertices, GLuint* indices, GLuint vertArrayLength, GLuint indArrayLength) {
-		indexCount = indArrayLength;
-		vertexCount = vertArrayLength / STRIDE; // Total number of values/stride = actual amount of full vertices
+	void Mesh::createMesh(GLfloat* vertices, GLuint* indices, GLuint vertexArrayLength, GLuint indexArrayLength) {
+		indexCount = indexArrayLength;
+		vertexCount = vertexArrayLength / STRIDE; // Total number of values/stride = actual amount of full vertices
 
-		int sizeVert = sizeof(vertices[0]) * vertArrayLength;
-		int sizeIdx = sizeof(indices[0]) * indArrayLength;
+		int vertexArraySize = sizeof(vertices[0]) * vertexArrayLength;
+		int indexArraySize = sizeof(indices[0]) * indexArrayLength;
 
 		// Generate the normals for the primitives to be drawn
 		setNormals(vertices, indices);
@@ -36,12 +36,12 @@ namespace Engine {
 		glGenBuffers(1, &IBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 		// Type of array | how much data | which data | draw type
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeIdx, indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexArraySize, indices, GL_STATIC_DRAW);
 
 		// Bind VBO
 		glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeVert, vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertexArraySize, vertices, GL_STATIC_DRAW);
 
 		// Set attribute pointers for this mesh
 		setAttributePointers();
@@ -94,7 +94,7 @@ namespace Engine {
 
 	// Calculate (average) normals for the vertex and index data that will be
 	// used in this mesh
-	void Mesh::setNormals(GLfloat* vData, GLuint* iData) {
+	void Mesh::setNormals(GLfloat* vertexData, GLuint* indexData) {
 
 		// Loop through index array in sets of 3, examining each set of three indices
 		// that will be used to draw a primitive triangle.
@@ -103,30 +103,30 @@ namespace Engine {
 			* vertex co-ordinate that corresponds with that index.
 			* e.g. if index is 2, and stride is 8, 2*8=16, so we need the 16th value
 			* in the vertex array. Take the set of 3 indices for this row: */
-			GLuint i0 = iData[t] * STRIDE, // Access 1st vertex in triangle
-				i1 = iData[t + 1] * STRIDE, // Second vertex
-				i2 = iData[t + 2] * STRIDE; // Third vertex
+			GLuint index0 = indexData[t] * STRIDE, // Access 1st vertex in triangle
+				index1 = indexData[t + 1] * STRIDE, // Second vertex
+				index2 = indexData[t + 2] * STRIDE; // Third vertex
 
-			vec3 normal = calculateNormal(vData, i0, i1, i2);
+			vec3 normal = calculateNormal(vertexData, index0, index1, index2);
 
 			// Move to the positions in vData where normal values (nx, ny, nz) start
-			i0 += OFFSET;
-			i1 += OFFSET;
-			i2 += OFFSET;
+			index0 += OFFSET;
+			index1 += OFFSET;
+			index2 += OFFSET;
 
 			// Add the values to their appropriate position
 			// Normals of first vertex chosen
-			vData[i0] = normal.x;
-			vData[i0 + 1] = normal.y;
-			vData[i0 + 2] = normal.z;
+			vertexData[index0] = normal.x;
+			vertexData[index0 + 1] = normal.y;
+			vertexData[index0 + 2] = normal.z;
 			// Second
-			vData[i1] = normal.x;
-			vData[i1 + 1] = normal.y;
-			vData[i1 + 2] = normal.z;
+			vertexData[index1] = normal.x;
+			vertexData[index1 + 1] = normal.y;
+			vertexData[index1 + 2] = normal.z;
 			// Third
-			vData[i2] = normal.x;
-			vData[i2 + 1] = normal.y;
-			vData[i2 + 2] = normal.z;
+			vertexData[index2] = normal.x;
+			vertexData[index2 + 1] = normal.y;
+			vertexData[index2 + 2] = normal.z;
 		}
 
 		// Modify and re-normalize vertex data
@@ -136,30 +136,30 @@ namespace Engine {
 			// The value of t functions like an index value - by using the stride we can skip
 			// to the vertex corresponding to that index. Then by adding the offset, we
 			// move to its three normal values.
-			GLuint pos = (t * STRIDE) + OFFSET;
+			GLuint position = (t * STRIDE) + OFFSET;
 
 			// Get the vertex values and normalise them
-			vec3 normalVertex = normalize(vec3(vData[pos], vData[pos + 1], vData[pos + 2]));
+			vec3 normalVertex = normalize(vec3(vertexData[position], vertexData[position + 1], vertexData[position + 2]));
 			// Put the normalised values back in the correct place
-			vData[pos] = normalVertex.x; // nx
-			vData[pos + 1] = normalVertex.y; // ny
-			vData[pos + 2] = normalVertex.z; // nz
+			vertexData[position] = normalVertex.x; // nx
+			vertexData[position + 1] = normalVertex.y; // ny
+			vertexData[position + 2] = normalVertex.z; // nz
 		}
 	}
 
-	vec3 Mesh::calculateNormal(GLfloat* vData, GLuint a, GLuint b, GLuint c) {
+	vec3 Mesh::calculateNormal(GLfloat* vertexData, GLuint vertexPositionA, GLuint vertexPositionB, GLuint vertexPositionC) {
 		/* To find the normal:
 		* - use indices to make lines from vertices, in the direction of the drawn triangle
 		* - calculate the cross product of the 2 lines to find the vector at right angles to the face
 		*/
 
 		// Get the other values needed to get the vectors. They are next to each other in the vertex array.
-		GLfloat x1 = vData[a], y1 = vData[a + 1], z1 = vData[a + 2],
-			x2 = vData[b], y2 = vData[b + 1], z2 = vData[b + 2],
-			x3 = vData[c], y3 = vData[c + 1], z3 = vData[c + 2];
+		GLfloat x1 = vertexData[vertexPositionA], y1 = vertexData[vertexPositionA + 1], z1 = vertexData[vertexPositionA + 2],
+			x2 = vertexData[vertexPositionB], y2 = vertexData[vertexPositionB + 1], z2 = vertexData[vertexPositionB + 2],
+			x3 = vertexData[vertexPositionC], y3 = vertexData[vertexPositionC + 1], z3 = vertexData[vertexPositionC + 2];
 
 		// Normalised cross product of the two lines:
-		vec3 norm, line1, line2;
+		vec3 normal, line1, line2;
 
 		// The first vector is a line between vertex a and vertex b
 		line1 = vec3(x2 - x1, y2 - y1, z2 - z1);
@@ -167,9 +167,10 @@ namespace Engine {
 		// The second vector is a line between vertex c and vertex b
 		line2 = vec3(x3 - x1, y3 - y1, z3 - z1);
 
-		norm = glm::cross(line2, line1);
+		normal = glm::cross(line2, line1);
 
-		return normalize(norm);
+		// Convert to unit vector that represents direction (no magnitude)
+		return normalize(normal);
 	}
 
 	void Mesh::setAttributePointers() {

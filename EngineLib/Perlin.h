@@ -35,8 +35,8 @@ namespace Engine {
 		float getPersistence() { return persistence; }
 
 		void setSeed(uint newSeed);
-		void setOctaveCount(uint oct) { if (oct < MAX_OCTAVES) octaves = oct; }
-		void setPersistence(float per) { if (per > 0.0f && per <= 1.0f) persistence = per; }
+		void setOctaveCount(uint octaves) { if (octaves < MAX_OCTAVES) this->octaves = octaves; }
+		void setPersistence(float persistence) { if (persistence > 0.0f && persistence <= 1.0f) this->persistence = persistence; }
 
 		~Perlin() {};
 

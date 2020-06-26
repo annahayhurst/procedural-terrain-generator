@@ -20,17 +20,17 @@ namespace UnitTests_PCG {
 			makeCamera(vec3(0.0f, 0.0f, 0.0f));
 
 			// Angle
-			Assert::AreEqual(cam.getPitch(), 90.0f);
-			Assert::AreEqual(cam.getYaw(), 0.0f);
+			Assert::AreEqual(camera.getPitch(), 90.0f);
+			Assert::AreEqual(camera.getYaw(), 0.0f);
 
 			// Speed
-			Assert::AreEqual(cam.getMovementSpeed(), 1.0f);
-			Assert::AreEqual(cam.getTurnSpeed(), 1.5f);
+			Assert::AreEqual(camera.getMovementSpeed(), 1.0f);
+			Assert::AreEqual(camera.getTurnSpeed(), 1.5f);
 
 			// Position
-			Assert::AreEqual(cam.getPosition().x, 0.0f);
-			Assert::AreEqual(cam.getPosition().y, 0.0f);
-			Assert::AreEqual(cam.getPosition().z, 0.0f);
+			Assert::AreEqual(camera.getPosition().x, 0.0f);
+			Assert::AreEqual(camera.getPosition().y, 0.0f);
+			Assert::AreEqual(camera.getPosition().z, 0.0f);
 		}
 
 		// Test that direction is calculated, and normalised correctly
@@ -39,9 +39,9 @@ namespace UnitTests_PCG {
 			makeCamera(pos);
 
 			// Normalised direction is in range [0, 1]
-			Assert::AreEqual(cam.getDirection().x, 0.0f, 1.0f);
-			Assert::AreEqual(cam.getDirection().y, 0.0f, 1.0f);
-			Assert::AreEqual(cam.getDirection().z, 0.0f, 1.0f);
+			Assert::AreEqual(camera.getDirection().x, 0.0f, 1.0f);
+			Assert::AreEqual(camera.getDirection().y, 0.0f, 1.0f);
+			Assert::AreEqual(camera.getDirection().z, 0.0f, 1.0f);
 		}
 
 		// Test that correct view matrix is calculated
@@ -52,7 +52,7 @@ namespace UnitTests_PCG {
 			vec3 up(0.0f, 1.0f, 0.0f), front(0.0f, 0.0f, -1.0f);
 			glm::mat4 result = glm::lookAt(pos, pos + front, up);
 
-			Assert::AreEqual(cam.getViewMatrix()[1][0], result[1][0]);
+			Assert::AreEqual(camera.getViewMatrix()[1][0], result[1][0]);
 		}
 
 		// Test that key input can change position of the camera
@@ -64,9 +64,9 @@ namespace UnitTests_PCG {
 			int w = (int)(GLFW_KEY_W);
 			keys[w] = true; // GLFW_KEY_W -> forward -> move on x axis
 
-			cam.keyControl(keys, 200.0f);
+			camera.keyControl(keys, 200.0f);
 
-			Assert::AreNotEqual(cam.getPosition().x, pos.x);
+			Assert::AreNotEqual(camera.getPosition().x, pos.x);
 		}
 
 		// Test that mouse input can change the direction of the camera
@@ -74,25 +74,25 @@ namespace UnitTests_PCG {
 			vec3 pos = generateRandomVector();
 			makeCamera(pos);
 
-			vec3 direction = cam.getDirection();
+			vec3 direction = camera.getDirection();
 
-			cam.mouseControl(7.5f, 5.0f);
+			camera.mouseControl(7.5f, 5.0f);
 
-			Assert::AreNotEqual(cam.getDirection().x, direction.x);
-			Assert::AreNotEqual(cam.getDirection().y, direction.y);
-			Assert::AreNotEqual(cam.getDirection().z, direction.z);
+			Assert::AreNotEqual(camera.getDirection().x, direction.x);
+			Assert::AreNotEqual(camera.getDirection().y, direction.y);
+			Assert::AreNotEqual(camera.getDirection().z, direction.z);
 		}
 
 	private:
 		Engine::Shader* testShader;
-		Engine::Camera cam;
+		Engine::Camera camera;
 
 		void makeCamera(vec3 position) {
 			vec3 up(0.0f, 1.0f, 0.0f);
 			GLfloat yaw = 0.0f, pitch = 90.0f;
 			GLfloat moveSpeed = 1.0f, turnSpeed = 1.5f;
 			
-			cam = Engine::Camera(position, up, yaw, pitch, moveSpeed, turnSpeed);
+			camera = Engine::Camera(position, up, yaw, pitch, moveSpeed, turnSpeed);
 		}
 
 		vec3 generateRandomVector() {

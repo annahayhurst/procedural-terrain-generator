@@ -35,7 +35,7 @@ namespace Engine {
 		GLuint id;
 		int width, height, depth; // depth -> bit-depth, used by image loader to store colour info (e.g 32-bit)
 
-		void bindTexture(unsigned char* texData, FileExtension ext);
+		void bindTexture(unsigned char* textureData, FileExtension extension);
 		void deleteTexture();
 	};
 

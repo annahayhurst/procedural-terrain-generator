@@ -7,15 +7,15 @@ namespace Engine {
 	}
 
 	// Constructor with paramaters
-	Light::Light(vec3 col, GLfloat aInt) :
-		colour(col), ambientIntensity(aInt) {
+	Light::Light(vec3 colour, GLfloat ambientIntensity) :
+		colour(colour), ambientIntensity(ambientIntensity) {
 	}
 
 	// Give the colour and intensity values associated with this object to the shader which
 	// will then apply the light to the scene.
-	void Light::useLight(Shader* s) {
-		glUniform3f(s->getAmbColourUL(), colour.x, colour.y, colour.z);
-		glUniform1f(s->getAmbIntensityUL(), ambientIntensity);
+	void Light::useLight(Shader* shader) {
+		glUniform3f(shader->getAmbientColourUL(), colour.x, colour.y, colour.z);
+		glUniform1f(shader->getAmbientIntensityUL(), ambientIntensity);
 	}
 
 }
