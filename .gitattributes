@@ -1,2 +1,3 @@
 # Vendored code settings
 Libraries/* linguist-vendored
+EngineLib/dependencies/* linguist-vendored
